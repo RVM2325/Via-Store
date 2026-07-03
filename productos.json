@@ -23,5 +23,16 @@
     "stock": true,
     "categoria": "tecnologia",
     "descripcion": "Mouse ergonómico con sensor óptico regulable."
-  }
+  },
+  {
+    "id": 3,
+    "nombre": "Mouse Gamer RGB",
+    "precio": 39.90,
+    "imagenes": [
+      "img/mouse-1.jpg",
+      "img/mouse-2.jpg"
+    ],
+    "stock": true,
+    "categoria": "tecnologia",
+    "descripcion": "Mouse ergonómico con sensor óptico regulable."
 ]
