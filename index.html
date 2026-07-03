@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vía Store & Service</title>
+    <!-- Bootstrap CSS para diseño rápido en celulares -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="estilos.css">
     <style>
@@ -23,12 +24,20 @@
             font-size: 1.5rem;
             cursor: pointer;
         }
+        /* Estilo para que las imágenes del carrusel mantengan la proporción */
+        .img-carrusel-detalle {
+            height: 350px;
+            object-fit: contain;
+            background-color: rgba(0,0,0,0.03);
+        }
     </style>
 </head>
 <body class="bg-light text-dark">
 
+    <!-- Botón Flotante Modo Oscuro -->
     <button id="btn-toggle-oscuro" class="btn btn-dark shadow-lg btn-modo-oscuro" title="Cambiar tema">🌙</button>
 
+    <!-- Navegación -->
     <nav class="navbar navbar-dark bg-dark sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">VÍA STORE & SERVICE 🛒🔧</a>
@@ -38,6 +47,7 @@
         </div>
     </nav>
 
+    <!-- Banner Principal -->
     <div class="container my-4">
         <div class="card p-4 shadow-sm text-center border-0 bg-body">
             <h1 class="display-6 fw-bold">Catálogo Digital</h1>
@@ -46,6 +56,7 @@
         </div>
     </div>
 
+    <!-- Barra de Búsqueda y Filtros -->
     <div class="container mb-4">
         <div class="row g-3">
             <div class="col-12 col-md-6">
@@ -60,10 +71,48 @@
         </div>
     </div>
 
+    <!-- Contenedor de Productos -->
     <div class="container mb-5">
         <div class="row row-cols-1 row-cols-md-3 g-4" id="contenedor-productos"></div>
     </div>
 
+    <!-- 🔍 NUEVO: Modal de Detalles / Galería del Producto -->
+    <div class="modal fade" id="modalDetalleProducto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-body">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold" id="detalle-nombre-producto">Detalles del Producto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <!-- Carrusel Dinámico de Fotos -->
+                    <div id="carruselProducto" class="carousel slide carousel-dark" data-bs-ride="false">
+                        <div class="carousel-inner" id="carrusel-imagenes-internas">
+                            <!-- Se llena con JS -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carruselProducto" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carruselProducto" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Siguiente</span>
+                        </button>
+                    </div>
+                    <!-- Información abajo del Carrusel -->
+                    <div class="p-3">
+                        <p class="text-muted" id="detalle-descripcion-producto"></p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="fs-3 fw-bold text-success" id="detalle-precio-producto"></span>
+                            <div id="contenedor-boton-modal-agregar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal del Carrito -->
     <div class="modal fade" id="modalCarrito" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content bg-body">
@@ -76,16 +125,14 @@
                         <p class="text-muted text-center my-3">El carrito está vacío.</p>
                     </div>
                     
-                    <!-- 📍 Selector de Tipo de Entrega Adaptado a tu Negocio -->
-<div id="seccion-entrega" class="mt-3 d-none">
-    <label for="select-entrega" class="form-label fw-bold text-secondary small">📍 CÓMO DESEAS RECIBIR TU PEDIDO:</label>
-    <select class="form-select bg-body border-secondary-subtle" id="select-entrega">
-        <option value="Agencia (Olva/Shalom) - ¡ENVÍO GRATIS A TODO LIMA!">📦 Recojo en Agencia Olva o Shalom (¡Envío Gratis a todo Lima!)</option>
-        <option value="Delivery a Domicilio Directo (Recargo según App)">🛵 Entrega a Domicilio Exacto (Costo extra según Aplicativo)</option>
-        <option value="Punto de Encuentro a Coordinar (Aplica recargo de movilidad)">🤝 Encuentro en Punto de Entrega (Aplica recargo de movilidad)</option>
-    </select>
-</div>
-                    
+                    <div id="seccion-entrega" class="mt-3 d-none">
+                        <label for="select-entrega" class="form-label fw-bold text-secondary small">📍 CÓMO DESEAS RECIBIR TU PEDIDO:</label>
+                        <select class="form-select bg-body border-secondary-subtle" id="select-entrega">
+                            <option value="Agencia (Olva/Shalom) - ¡ENVÍO GRATIS A TODO LIMA!">📦 Recojo en Agencia Olva o Shalom (¡Envío Gratis a todo Lima!)</option>
+                            <option value="Delivery a Domicilio Directo (Recargo según App)">🛵 Entrega a Domicilio Exacto (Costo extra según Aplicativo)</option>
+                            <option value="Punto de Encuentro a Coordinar (Aplica recargo de movilidad)">🤝 Encuentro en Punto de Entrega (Aplica recargo de movilidad)</option>
+                        </select>
+                    </div>
 
                     <hr>
                     <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
@@ -101,7 +148,9 @@
         </div>
     </div>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Tu archivo lógico -->
     <script src="script.js"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@ let categoriaSeleccionada = "todos";
 let textoBusqueda = "";
 
 // ⚠️ REEMPLAZA ESTO CON TU NÚMERO REAL (Mantén el 51 de Perú adelante, sin espacios ni símbolos)
-const NUMERO_WHATSAPP = "51935530397"; 
+const NUMERO_WHATSAPP = "51999999999"; 
 
 // 🔥 Ejecutar automáticamente cuando cargue la página web
 document.addEventListener("DOMContentLoaded", () => {
@@ -62,21 +62,26 @@ function dibujarProductos() {
         const tarjeta = document.createElement("div");
         tarjeta.className = "col";
         
+        // Mostrar siempre la primera imagen del array como la portada principal
+        const imagenPortada = (prod.imagenes && prod.imagenes.length > 0) ? prod.imagenes[0] : "img/placeholder.jpg";
+        
         const botonHTML = prod.stock 
-            ? `<button class="btn btn-dark w-100 fw-bold shadow-sm btn-agregar" onclick="agregarAlCarrito(${prod.id})">🛒 Agregar al Pedido</button>`
-            : `<button class="btn btn-secondary w-100 text-white" disabled>Agotado momentáneamente</button>`;
+            ? `<button class="btn btn-dark w-100 fw-bold shadow-sm btn-agregar mb-2" onclick="agregarAlCarrito(${prod.id})">🛒 Agregar al Pedido</button>`
+            : `<button class="btn btn-secondary w-100 text-white mb-2" disabled>Agotado momentáneamente</button>`;
 
         tarjeta.innerHTML = `
             <div class="card h-100 shadow-sm border-0 bg-body card-producto">
-                <img src="${prod.imagen}" class="card-img-top p-2 rounded" alt="${prod.nombre}" style="height: 200px; object-fit: cover;">
+                <img src="${imagenPortada}" class="card-img-top p-2 rounded" alt="${prod.nombre}" style="height: 200px; object-fit: cover;">
                 <div class="card-body d-flex flex-column justify-content-between">
                     <div>
                         <h5 class="card-title fw-bold mb-1">${prod.nombre}</h5>
-                        <p class="card-text text-muted small mb-0">${prod.descripcion}</p>
+                        <p class="card-text text-muted small mb-0 text-truncate">${prod.descripcion}</p>
                     </div>
                     <div class="mt-3">
                         <div class="fs-4 fw-bold text-success mb-2">S/ ${prod.precio.toFixed(2)}</div>
                         ${botonHTML}
+                        <!-- 🔍 Botón dinámico para abrir la galería multimedia -->
+                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="abrirGaleriaProducto(${prod.id})">🔍 Ver fotos y detalles</button>
                     </div>
                 </div>
             </div>
@@ -85,6 +90,46 @@ function dibujarProductos() {
     });
     
     sincronizarEstilosBotones();
+}
+
+// 🔍 NUEVO: Función para armar y mostrar el carrusel de imágenes del producto
+function abrirGaleriaProducto(id) {
+    const prod = productos.find(p => p.id === id);
+    if (!prod) return;
+
+    // Asignar los textos informativos en el modal
+    document.getElementById("detalle-nombre-producto").innerText = prod.nombre;
+    document.getElementById("detalle-descripcion-producto").innerText = prod.descripcion;
+    document.getElementById("detalle-precio-producto").innerText = `S/ ${prod.precio.toFixed(2)}`;
+
+    // Configurar el botón de agregar al carrito dentro del modal informativo
+    const contenedorBoton = document.getElementById("contenedor-boton-modal-agregar");
+    if (prod.stock) {
+        contenedorBoton.innerHTML = `<button class="btn btn-success fw-bold" onclick="agregarAlCarrito(${prod.id})" data-bs-dismiss="modal">🛒 Añadir al Pedido</button>`;
+    } else {
+        contenedorBoton.innerHTML = `<button class="btn btn-secondary text-white" disabled>Agotado</button>`;
+    }
+
+    // Armar el bloque de imágenes para el carrusel
+    const contenedorCarrusel = document.getElementById("carrusel-imagenes-internas");
+    contenedorCarrusel.innerHTML = "";
+
+    if (prod.imagenes && prod.imagenes.length > 0) {
+        prod.imagenes.forEach((imgUrl, index) => {
+            const divImagen = document.createElement("div");
+            // La primera foto debe tener la clase 'active' para que Bootstrap sepa por dónde empezar
+            divImagen.className = `carousel-item ${index === 0 ? 'active' : ''}`;
+            divImagen.innerHTML = `<img src="${imgUrl}" class="d-block w-100 img-carrusel-detalle" alt="Foto ${index + 1} de ${prod.nombre}">`;
+            contenedorCarrusel.appendChild(divImagen);
+        });
+    } else {
+        // Fallback por si acaso no tiene imágenes registradas
+        contenedorCarrusel.innerHTML = `<div class="carousel-item active"><img src="img/placeholder.jpg" class="d-block w-100 img-carrusel-detalle" alt="Sin imagen"></div>`;
+    }
+
+    // Forzar a Bootstrap a mostrar la ventana flotante de la galería
+    const modalGaleria = new bootstrap.Modal(document.getElementById("modalDetalleProducto"));
+    modalGaleria.show();
 }
 
 // 🔄 Cambiar de categoría activa
@@ -190,7 +235,6 @@ function enviarPedidoWhatsApp() {
         return;
     }
 
-    // Capturar la opción real elegida por el cliente en el selector
     const selectEntrega = document.getElementById("select-entrega");
     const metodoEntrega = selectEntrega ? selectEntrega.value : "No especificado";
 
@@ -204,11 +248,8 @@ function enviarPedidoWhatsApp() {
     });
 
     textoMensaje += `\n💰 *Total de Productos:* S/ ${totalPrecio.toFixed(2)}`;
-    
-    // Agregar la modalidad de entrega seleccionada al mensaje de WhatsApp
     textoMensaje += `\n\n📍 *Modalidad de Entrega Seleccionada:* \n→ _${metodoEntrega}_`;
 
-    // Notas automáticas según la opción elegida para transparentar costos
     if (metodoEntrega.includes("Agencia")) {
         textoMensaje += `\n✨ _Nota: El envío a agencia ya está incluido gratis en el precio._`;
     } else if (metodoEntrega.includes("Domicilio Directo")) {
@@ -222,7 +263,6 @@ function enviarPedidoWhatsApp() {
     textoMensaje += "\n• Celular de Contacto: ";
     textoMensaje += "\n• Agencia de preferencia / Dirección / Punto deseado: ";
 
-    // Cifrar mensaje para la URL
     const mensajeCodificado = encodeURIComponent(textoMensaje);
     const urlWhatsApp = `https://wa.me/${NUMERO_WHATSAPP}?text=${mensajeCodificado}`;
 
