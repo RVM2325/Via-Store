@@ -5,7 +5,7 @@ let categoriaSeleccionada = "todos";
 let textoBusqueda = "";
 
 // ⚠️ REEMPLAZA ESTO CON TU NÚMERO REAL (Mantén el 51 de Perú adelante, sin espacios ni símbolos)
-const NUMERO_WHATSAPP = "51999999999"; 
+const NUMERO_WHATSAPP = "51935530397"; 
 
 // 🔥 Ejecutar automáticamente cuando cargue la página web
 document.addEventListener("DOMContentLoaded", () => {
@@ -84,7 +84,6 @@ function dibujarProductos() {
         contenedor.appendChild(tarjeta);
     });
     
-    // Ajustar estilos de botones según el modo activo actual
     sincronizarEstilosBotones();
 }
 
@@ -122,14 +121,13 @@ function agregarAlCarrito(id) {
     actualizarInterfazCarrito();
 }
 
-// ➕ Aumentar una unidad directo desde el carrito
+// ➕ / ➖ Cambiar unidades directo desde el carrito
 function cambiarCantidad(id, cambio) {
     const itemEnCarrito = carrito.find(item => item.id === id);
     if (!itemEnCarrito) return;
 
     itemEnCarrito.cantidad += cambio;
 
-    // Si la cantidad llega a 0, se elimina por completo del carrito
     if (itemEnCarrito.cantidad <= 0) {
         carrito = carrito.filter(item => item.id !== id);
     }
@@ -137,11 +135,12 @@ function cambiarCantidad(id, cambio) {
     actualizarInterfazCarrito();
 }
 
-// 🔄 Renderizar las filas del carrito con los controles multiplicadores (+ y -)
+// 🔄 Renderizar las filas del carrito y controlar visibilidad del selector de entrega
 function actualizarInterfazCarrito() {
     const contador = document.getElementById("contador-carrito");
     const listaItems = document.getElementById("items-carrito");
     const totalSpan = document.getElementById("total-carrito");
+    const seccionEntrega = document.getElementById("seccion-entrega");
 
     const totalArticulos = carrito.reduce((sum, item) => sum + item.cantidad, 0);
     if (contador) contador.innerText = totalArticulos;
@@ -149,9 +148,11 @@ function actualizarInterfazCarrito() {
     if (carrito.length === 0) {
         if (listaItems) listaItems.innerHTML = `<p class="text-muted text-center my-3">El carrito está vacío.</p>`;
         if (totalSpan) totalSpan.innerText = "0.00";
+        if (seccionEntrega) seccionEntrega.classList.add("d-none"); // Ocultar si no hay productos
         return;
     }
 
+    if (seccionEntrega) seccionEntrega.classList.remove("d-none"); // Mostrar selector si hay items
     if (listaItems) listaItems.innerHTML = "";
     let totalPrecio = 0;
 
@@ -167,7 +168,6 @@ function actualizarInterfazCarrito() {
                 <br>
                 <small class="text-success fw-bold">S/ ${item.precio.toFixed(2)} c/u</small>
             </div>
-            <!-- 🧮 Controladores de cantidad integrados -->
             <div class="d-flex align-items-center gap-1">
                 <button class="btn btn-sm btn-outline-secondary px-2 py-0 fw-bold" onclick="cambiarCantidad(${item.id}, -1)">-</button>
                 <span class="fw-bold px-2" style="min-width: 25px; text-align: center;">${item.cantidad}</span>
@@ -183,12 +183,16 @@ function actualizarInterfazCarrito() {
     if (totalSpan) totalSpan.innerText = totalPrecio.toFixed(2);
 }
 
-// 💬 Enviar el pedido estructurado a WhatsApp
+// 💬 Enviar el pedido estructurado a WhatsApp incluyendo el método de entrega seleccionado
 function enviarPedidoWhatsApp() {
     if (carrito.length === 0) {
         alert("¡Tu carrito está vacío! Añade productos antes de confirmar tu pedido.");
         return;
     }
+
+    // 📍 CAPTURAR LA OPCIÓN DEL SELECTOR DE ENTREGA
+    const selectEntrega = document.getElementById("select-entrega");
+    const metodoEntrega = selectEntrega ? selectEntrega.value : "No especificado";
 
     let textoMensaje = "¡Hola *Vía Store & Service*! 👋 Deseo realizar el siguiente pedido:\n\n";
     let totalPrecio = 0;
@@ -201,15 +205,19 @@ function enviarPedidoWhatsApp() {
 
     textoMensaje += `\n💰 *Total Estimado a Pagar:* S/ ${totalPrecio.toFixed(2)}`;
     
+    // Regla de envío gratis dinamizada
     if (totalPrecio >= 100) {
         textoMensaje += `\n🚚 _¡Felicidades! Tu compra califica para Envío Gratis_`;
     } else {
         textoMensaje += `\n📦 _Nota: No incluye costo de entrega (Pedidos menores a S/ 100)_`;
     }
 
+    // 📍 AGREGAR EL MÉTODO DE ENTREGA AL MENSAJE FINAL
+    textoMensaje += `\n\n📍 *Método de Entrega Solicitado:* \n→ _${metodoEntrega}_`;
+
     textoMensaje += "\n\n📌 *Mis Datos de Contacto:*";
     textoMensaje += "\n• Nombre: ";
-    textoMensaje += "\n• Distrito de Entrega: ";
+    textoMensaje += "\n• Dirección / Ref. Exacta: ";
 
     const mensajeCodificado = encodeURIComponent(textoMensaje);
     const urlWhatsApp = `https://wa.me/${NUMERO_WHATSAPP}?text=${mensajeCodificado}`;
@@ -217,7 +225,7 @@ function enviarPedidoWhatsApp() {
     window.open(urlWhatsApp, "_blank");
 }
 
-// 🌙 Lógica Inteligente del Modo Oscuro
+// 🌙 Lógica del Modo Oscuro
 function inicializarModoOscuro() {
     const boton = document.getElementById("btn-toggle-oscuro");
     if (!boton) return;
@@ -235,11 +243,8 @@ function inicializarModoOscuro() {
     });
 }
 
-// Ajustar colores de componentes Bootstrap que no cambian automáticamente
 function sincronizarEstilosBotones() {
     const esOscuro = document.documentElement.getAttribute("data-bs-theme") === "dark";
-    
-    // Cambiar las tarjetas de los botones principales del catálogo
     const botonesAgregar = document.querySelectorAll(".btn-agregar");
     botonesAgregar.forEach(btn => {
         if (esOscuro) {

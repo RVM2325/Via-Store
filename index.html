@@ -4,14 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vía Store & Service</title>
-    <!-- Bootstrap CSS para diseño rápido en celulares -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="estilos.css">
     <style>
-        /* Estilos rápidos para mejorar la experiencia */
         .card-producto { transition: transform 0.2s, box-shadow 0.2s; }
         .card-producto:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important; }
-        /* Botón flotante para el Modo Oscuro */
         .btn-modo-oscuro {
             position: fixed;
             bottom: 20px;
@@ -30,10 +27,8 @@
 </head>
 <body class="bg-light text-dark">
 
-    <!-- Botón Flotante Modo Oscuro -->
     <button id="btn-toggle-oscuro" class="btn btn-dark shadow-lg btn-modo-oscuro" title="Cambiar tema">🌙</button>
 
-    <!-- Navegación -->
     <nav class="navbar navbar-dark bg-dark sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">VÍA STORE & SERVICE 🛒🔧</a>
@@ -43,7 +38,6 @@
         </div>
     </nav>
 
-    <!-- Banner Principal -->
     <div class="container my-4">
         <div class="card p-4 shadow-sm text-center border-0 bg-body">
             <h1 class="display-6 fw-bold">Catálogo Digital</h1>
@@ -52,7 +46,6 @@
         </div>
     </div>
 
-    <!-- Barra de Búsqueda y Filtros -->
     <div class="container mb-4">
         <div class="row g-3">
             <div class="col-12 col-md-6">
@@ -67,12 +60,10 @@
         </div>
     </div>
 
-    <!-- Contenedor de Productos -->
     <div class="container mb-5">
         <div class="row row-cols-1 row-cols-md-3 g-4" id="contenedor-productos"></div>
     </div>
 
-    <!-- Modal del Carrito -->
     <div class="modal fade" id="modalCarrito" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content bg-body">
@@ -84,6 +75,16 @@
                     <div id="items-carrito">
                         <p class="text-muted text-center my-3">El carrito está vacío.</p>
                     </div>
+                    
+                    <div id="seccion-entrega" class="mt-3 d-none">
+                        <label for="select-entrega" class="form-label fw-bold text-secondary small">📍 CÓMO DESEAS RECIBIR TU PEDIDO:</label>
+                        <select class="form-select bg-body border-secondary-subtle" id="select-entrega">
+                            <option value="Metropolitano / Lince">Entrega Gratuita (Lince / Estaciones Metropolitano)</option>
+                            <option value="Delivery a Domicilio (Lima)">Envío a Domicilio en Lima (Agencia/Olva/Shalom)</option>
+                            <option value="Servicio Técnico (A Domicilio / Oficina)">Coordinar Soporte Técnico (A Domicilio / Oficina)</option>
+                        </select>
+                    </div>
+
                     <hr>
                     <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
                         <span>Total:</span>
@@ -98,9 +99,7 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Tu archivo lógico -->
     <script src="script.js"></script>
 </body>
 </html>
