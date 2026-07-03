@@ -3,7 +3,7 @@ let productos = [];
 let carrito = [];
 
 // Tu número de WhatsApp Business (Usa el código de país de Perú: 51)
-const NUMERO_WHATSAPP = "51999999999"; // ⚠️ REEMPLAZA ESTO CON TU NÚMERO REAL LUEGO
+const NUMERO_WHATSAPP = "51935530397"; // ⚠️ REEMPLAZA ESTO CON TU NÚMERO REAL LUEGO
 
 // Ejecutar cuando cargue la página
 document.addEventListener("DOMContentLoaded", () => {
