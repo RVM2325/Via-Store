@@ -5,7 +5,7 @@ let categoriaSeleccionada = "todos";
 let textoBusqueda = "";
 
 // ⚠️ REEMPLAZA ESTO CON TU NÚMERO REAL (Mantén el 51 de Perú adelante, sin espacios ni símbolos)
-const NUMERO_WHATSAPP = "51999999999"; 
+const NUMERO_WHATSAPP = "51935530397"; 
 
 // 🔥 Ejecutar automáticamente cuando cargue la página web
 document.addEventListener("DOMContentLoaded", () => {
