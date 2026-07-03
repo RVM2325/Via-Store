@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +7,31 @@
     <!-- Bootstrap CSS para diseño rápido en celulares -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="estilos.css">
+    <style>
+        /* Estilos rápidos para mejorar la experiencia */
+        .card-producto { transition: transform 0.2s, box-shadow 0.2s; }
+        .card-producto:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important; }
+        /* Botón flotante para el Modo Oscuro */
+        .btn-modo-oscuro {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1050;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body class="bg-light text-dark">
+
+    <!-- Botón Flotante Modo Oscuro -->
+    <button id="btn-toggle-oscuro" class="btn btn-dark shadow-lg btn-modo-oscuro" title="Cambiar tema">🌙</button>
 
     <!-- Navegación -->
     <nav class="navbar navbar-dark bg-dark sticky-top">
@@ -22,55 +45,54 @@
 
     <!-- Banner Principal -->
     <div class="container my-4">
-        <div class="bg-white p-4 rounded shadow-sm text-center">
-            <h1 class="display-6 fw-bold text-dark">Catálogo Digital</h1>
-            <p class="text-muted">Importaciones, novedades y Servicio Técnico Especializado.</p>
-            <span class="badge bg-danger p-2 fs-6">🚚 Envío GRATIS a partir de S/ 100</span>
-        </div>
-
-        <!-- Barra de Búsqueda y Filtros -->
-<div class="container mb-4">
-    <div class="row g-3">
-        <!-- Barra de búsqueda por texto -->
-        <div class="col-12 col-md-6">
-            <input type="text" id="input-busqueda" class="form-control form-control-lg shadow-sm" placeholder="🔍 Buscar herramientas, mouses, servicios...">
-        </div>
-        <!-- Filtros por Categoría -->
-        <div class="col-12 col-md-6 d-flex gap-2 flex-wrap align-items-center justify-content-md-end">
-            <button class="btn btn-dark shadow-sm btn-filtro active" onclick="filtrarPorCategoria('todos')">Todos</button>
-            <button class="btn btn-outline-dark shadow-sm btn-filtro" onclick="filtrarPorCategoria('herramientas')">Herramientas</button>
-            <button class="btn btn-outline-dark shadow-sm btn-filtro" onclick="filtrarPorCategoria('tecnologia')">Tecnología</button>
-            <button class="btn btn-outline-dark shadow-sm btn-filtro" onclick="filtrarPorCategoria('servicio')">Servicios técnicos</button>
+        <div class="card p-4 shadow-sm text-center border-0 bg-body">
+            <h1 class="display-6 fw-bold">Catálogo Digital</h1>
+            <p class="text-muted">Importaciones, novedades y Servicio Técnico Especializado en Lince.</p>
+            <span class="badge bg-danger p-2 fs-6 w-auto mx-auto">🚚 Envío GRATIS a partir de S/ 100</span>
         </div>
     </div>
-</div>
 
-        <!-- Contenedor donde JavaScript meterá los productos -->
-        <div class="row row-cols-1 row-cols-md-3 g-4 mt-2" id="contenedor-productos"></div>
+    <!-- Barra de Búsqueda y Filtros -->
+    <div class="container mb-4">
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <input type="text" id="input-busqueda" class="form-control form-control-lg shadow-sm bg-body" placeholder="🔍 Buscar herramientas, mouses, servicios...">
+            </div>
+            <div class="col-12 col-md-6 d-flex gap-2 flex-wrap align-items-center justify-content-md-end">
+                <button class="btn btn-dark shadow-sm btn-filtro active" onclick="filtrarPorCategoria('todos')">Todos</button>
+                <button class="btn btn-outline-dark shadow-sm btn-filtro" onclick="filtrarPorCategoria('herramientas')">Herramientas</button>
+                <button class="btn btn-outline-dark shadow-sm btn-filtro" onclick="filtrarPorCategoria('tecnologia')">Tecnología</button>
+                <button class="btn btn-outline-dark shadow-sm btn-filtro" onclick="filtrarPorCategoria('servicio')">Servicios técnicos</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Modal del Carrito (Ventana flotante) -->
+    <!-- Contenedor de Productos -->
+    <div class="container mb-5">
+        <div class="row row-cols-1 row-cols-md-3 g-4" id="contenedor-productos"></div>
+    </div>
+
+    <!-- Modal del Carrito -->
     <div class="modal fade" id="modalCarrito" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content bg-body">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">Tu Pedido</h5>
+                    <h5 class="modal-title fw-bold">Tu Pedido</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div id="items-carrito">
-                        <!-- Aquí se listarán los productos agregados -->
-                        <p class="text-muted text-center">El carrito está vacío.</p>
+                        <p class="text-muted text-center my-3">El carrito está vacío.</p>
                     </div>
                     <hr>
-                    <div class="d-flex justify-content-between fw-bold fs-5">
+                    <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
                         <span>Total:</span>
                         <span>S/ <span id="total-carrito">0.00</span></span>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Seguir comprando</button>
-                    <button type="button" class="btn btn-success w-100 mt-2" id="btn-enviar-whatsapp">Confirmar por WhatsApp 💬</button>
+                <div class="modal-footer flex-column">
+                    <button type="button" class="btn btn-success w-100 fw-bold py-2 fs-5" id="btn-enviar-whatsapp">Confirmar por WhatsApp 💬</button>
+                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Seguir comprando</button>
                 </div>
             </div>
         </div>

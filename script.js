@@ -5,22 +5,23 @@ let categoriaSeleccionada = "todos";
 let textoBusqueda = "";
 
 // ⚠️ REEMPLAZA ESTO CON TU NÚMERO REAL (Mantén el 51 de Perú adelante, sin espacios ni símbolos)
-const NUMERO_WHATSAPP = "51935530397"; 
+const NUMERO_WHATSAPP = "51999999999"; 
 
 // 🔥 Ejecutar automáticamente cuando cargue la página web
 document.addEventListener("DOMContentLoaded", () => {
     cargarProductos();
+    inicializarModoOscuro();
     
-    // Escuchar en tiempo real lo que el cliente escribe en la barra de búsqueda
+    // Escuchar la barra de búsqueda
     const inputBusqueda = document.getElementById("input-busqueda");
     if (inputBusqueda) {
         inputBusqueda.addEventListener("input", (e) => {
             textoBusqueda = e.target.value.toLowerCase();
-            dibujarProductos(); // Volver a pintar los productos filtrados instantáneamente
+            dibujarProductos();
         });
     }
 
-    // Configurar la acción del botón final del carrito
+    // Configurar el botón final de WhatsApp
     document.getElementById("btn-enviar-whatsapp").addEventListener("click", enviarPedidoWhatsApp);
 });
 
@@ -41,7 +42,6 @@ function dibujarProductos() {
     if (!contenedor) return;
     contenedor.innerHTML = "";
 
-    // 🌟 FILTRADO INTELIGENTE: Combinamos búsqueda por texto y categoría seleccionada
     const productosFiltrados = productos.filter(prod => {
         const coincideCategoria = (categoriaSeleccionada === "todos" || prod.categoria === categoriaSeleccionada);
         const coincideTexto = prod.nombre.toLowerCase().includes(textoBusqueda) || 
@@ -49,7 +49,6 @@ function dibujarProductos() {
         return coincideCategoria && coincideTexto;
     });
 
-    // Si no hay ninguna coincidencia, mostrar un aviso amigable
     if (productosFiltrados.length === 0) {
         contenedor.innerHTML = `
             <div class="col-12 text-center my-5">
@@ -59,22 +58,20 @@ function dibujarProductos() {
         return;
     }
 
-    // Dibujar en pantalla únicamente los productos que pasaron el filtro
     productosFiltrados.forEach(prod => {
         const tarjeta = document.createElement("div");
         tarjeta.className = "col";
         
-        // Deshabilitar botón si el producto no cuenta con stock disponible
         const botonHTML = prod.stock 
-            ? `<button class="btn btn-dark w-100 fw-bold shadow-sm" onclick="agregarAlCarrito(${prod.id})">🛒 Agregar al Pedido</button>`
+            ? `<button class="btn btn-dark w-100 fw-bold shadow-sm btn-agregar" onclick="agregarAlCarrito(${prod.id})">🛒 Agregar al Pedido</button>`
             : `<button class="btn btn-secondary w-100 text-white" disabled>Agotado momentáneamente</button>`;
 
         tarjeta.innerHTML = `
-            <div class="card h-100 shadow-sm border-0 bg-white card-producto">
+            <div class="card h-100 shadow-sm border-0 bg-body card-producto">
                 <img src="${prod.imagen}" class="card-img-top p-2 rounded" alt="${prod.nombre}" style="height: 200px; object-fit: cover;">
                 <div class="card-body d-flex flex-column justify-content-between">
                     <div>
-                        <h5 class="card-title text-dark fw-bold mb-1">${prod.nombre}</h5>
+                        <h5 class="card-title fw-bold mb-1">${prod.nombre}</h5>
                         <p class="card-text text-muted small mb-0">${prod.descripcion}</p>
                     </div>
                     <div class="mt-3">
@@ -86,30 +83,32 @@ function dibujarProductos() {
         `;
         contenedor.appendChild(tarjeta);
     });
+    
+    // Ajustar estilos de botones según el modo activo actual
+    sincronizarEstilosBotones();
 }
 
-// 🔄 Cambiar de categoría activa y actualizar el diseño de los botones visualmente
+// 🔄 Cambiar de categoría activa
 function filtrarPorCategoria(categoria) {
     categoriaSeleccionada = categoria;
     
-    // Limpiar clases activas de todos los botones de filtro
     const botones = document.querySelectorAll(".btn-filtro");
     botones.forEach(btn => {
-        btn.classList.remove("btn-dark", "active");
-        btn.classList.add("btn-outline-dark");
+        btn.classList.remove("btn-dark", "btn-light", "active");
+        btn.classList.add(document.documentElement.getAttribute("data-bs-theme") === "dark" ? "btn-outline-light" : "btn-outline-dark");
     });
 
-    // Resaltar visualmente el botón al que se le hizo clic
     const botonActivo = window.event.target;
     if (botonActivo && botonActivo.classList.contains("btn-filtro")) {
-        botonActivo.classList.remove("btn-outline-dark");
-        botonActivo.classList.add("btn-dark", "active");
+        const esOscuro = document.documentElement.getAttribute("data-bs-theme") === "dark";
+        botonActivo.classList.remove("btn-outline-dark", "btn-outline-light");
+        botonActivo.classList.add(esOscuro ? "btn-light" : "btn-dark", "active");
     }
 
-    dibujarProductos(); // Refrescar catálogo con la nueva categoría
+    dibujarProductos();
 }
 
-// 🛒 Añadir un producto al array del carrito de compras
+// 🛒 Añadir un producto al carrito de compras
 function agregarAlCarrito(id) {
     const producto = productos.find(p => p.id === id);
     const itemEnCarrito = carrito.find(item => item.id === id);
@@ -123,7 +122,22 @@ function agregarAlCarrito(id) {
     actualizarInterfazCarrito();
 }
 
-// 🔄 Renderizar las filas de productos dentro de la ventana modal del carrito
+// ➕ Aumentar una unidad directo desde el carrito
+function cambiarCantidad(id, cambio) {
+    const itemEnCarrito = carrito.find(item => item.id === id);
+    if (!itemEnCarrito) return;
+
+    itemEnCarrito.cantidad += cambio;
+
+    // Si la cantidad llega a 0, se elimina por completo del carrito
+    if (itemEnCarrito.cantidad <= 0) {
+        carrito = carrito.filter(item => item.id !== id);
+    }
+
+    actualizarInterfazCarrito();
+}
+
+// 🔄 Renderizar las filas del carrito con los controles multiplicadores (+ y -)
 function actualizarInterfazCarrito() {
     const contador = document.getElementById("contador-carrito");
     const listaItems = document.getElementById("items-carrito");
@@ -146,16 +160,21 @@ function actualizarInterfazCarrito() {
         totalPrecio += subtotal;
 
         const fila = document.createElement("div");
-        fila.className = "d-flex justify-content-between align-items-center mb-2 bg-light p-2 rounded animate__animated animate__fadeInFast";
+        fila.className = "d-flex justify-content-between align-items-center mb-3 p-2 rounded border border-secondary-subtle";
         fila.innerHTML = `
-            <div>
-                <span class="fw-bold text-dark text-truncate d-inline-block" style="max-width: 220px;">${item.nombre}</span>
+            <div style="max-width: 55%;">
+                <span class="fw-bold d-inline-block text-truncate w-100">${item.nombre}</span>
                 <br>
-                <small class="text-muted">S/ ${item.precio.toFixed(2)} x ${item.cantidad}</small>
+                <small class="text-success fw-bold">S/ ${item.precio.toFixed(2)} c/u</small>
             </div>
-            <div class="d-flex align-items-center">
-                <span class="fw-bold text-success me-3">S/ ${subtotal.toFixed(2)}</span>
-                <button class="btn btn-sm btn-outline-danger border-0" onclick="eliminarDelCarrito(${item.id})">❌</button>
+            <!-- 🧮 Controladores de cantidad integrados -->
+            <div class="d-flex align-items-center gap-1">
+                <button class="btn btn-sm btn-outline-secondary px-2 py-0 fw-bold" onclick="cambiarCantidad(${item.id}, -1)">-</button>
+                <span class="fw-bold px-2" style="min-width: 25px; text-align: center;">${item.cantidad}</span>
+                <button class="btn btn-sm btn-outline-secondary px-2 py-0 fw-bold" onclick="cambiarCantidad(${item.id}, 1)">+</button>
+            </div>
+            <div class="text-end" style="min-width: 75px;">
+                <span class="fw-bold text-success">S/ ${subtotal.toFixed(2)}</span>
             </div>
         `;
         if (listaItems) listaItems.appendChild(fila);
@@ -164,20 +183,7 @@ function actualizarInterfazCarrito() {
     if (totalSpan) totalSpan.innerText = totalPrecio.toFixed(2);
 }
 
-// ❌ Disminuir cantidad o remover un artículo por completo del carrito
-function eliminarDelCarrito(id) {
-    const itemEnCarrito = carrito.find(item => item.id === id);
-    if (!itemEnCarrito) return;
-
-    if (itemEnCarrito.cantidad > 1) {
-        itemEnCarrito.cantidad--;
-    } else {
-        carrito = carrito.filter(item => item.id !== id);
-    }
-    actualizarInterfazCarrito();
-}
-
-// 💬 Empaquetar el array de compras en un mensaje cifrado de URL y enviarlo a WhatsApp
+// 💬 Enviar el pedido estructurado a WhatsApp
 function enviarPedidoWhatsApp() {
     if (carrito.length === 0) {
         alert("¡Tu carrito está vacío! Añade productos antes de confirmar tu pedido.");
@@ -195,7 +201,6 @@ function enviarPedidoWhatsApp() {
 
     textoMensaje += `\n💰 *Total Estimado a Pagar:* S/ ${totalPrecio.toFixed(2)}`;
     
-    // Regla de envío gratis dinamizada según montos
     if (totalPrecio >= 100) {
         textoMensaje += `\n🚚 _¡Felicidades! Tu compra califica para Envío Gratis_`;
     } else {
@@ -206,10 +211,43 @@ function enviarPedidoWhatsApp() {
     textoMensaje += "\n• Nombre: ";
     textoMensaje += "\n• Distrito de Entrega: ";
 
-    // Codificar caracteres especiales para compatibilidad URL universal
     const mensajeCodificado = encodeURIComponent(textoMensaje);
     const urlWhatsApp = `https://wa.me/${NUMERO_WHATSAPP}?text=${mensajeCodificado}`;
 
-    // Despachar hacia la aplicación o web de WhatsApp en pestaña nueva
     window.open(urlWhatsApp, "_blank");
+}
+
+// 🌙 Lógica Inteligente del Modo Oscuro
+function inicializarModoOscuro() {
+    const boton = document.getElementById("btn-toggle-oscuro");
+    if (!boton) return;
+
+    boton.addEventListener("click", () => {
+        const html = document.documentElement;
+        const temaActual = html.getAttribute("data-bs-theme");
+        const nuevoTema = temaActual === "dark" ? "light" : "dark";
+        
+        html.setAttribute("data-bs-theme", nuevoTema);
+        boton.innerText = nuevoTema === "dark" ? "☀️" : "🌙";
+        boton.className = nuevoTema === "dark" ? "btn btn-light shadow-lg btn-modo-oscuro" : "btn btn-dark shadow-lg btn-modo-oscuro";
+        
+        sincronizarEstilosBotones();
+    });
+}
+
+// Ajustar colores de componentes Bootstrap que no cambian automáticamente
+function sincronizarEstilosBotones() {
+    const esOscuro = document.documentElement.getAttribute("data-bs-theme") === "dark";
+    
+    // Cambiar las tarjetas de los botones principales del catálogo
+    const botonesAgregar = document.querySelectorAll(".btn-agregar");
+    botonesAgregar.forEach(btn => {
+        if (esOscuro) {
+            btn.classList.remove("btn-dark");
+            btn.classList.add("btn-light");
+        } else {
+            btn.classList.remove("btn-light");
+            btn.classList.add("btn-dark");
+        }
+    });
 }
