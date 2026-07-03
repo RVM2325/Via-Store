@@ -4,9 +4,10 @@
     "nombre": "Maletín de Herramientas Premium",
     "precio": 169.90,
     "imagenes": [
-      "img/taladro-portada.jpg",
-      "img/maletin-2.jpg",
-      "img/maletin-3.jpg"
+      "img/taladro-108-1.jpg",
+      "img/taladro-108-2.jpg",
+      "img/taladro-108-3.jpg",
+      "img/taladro-108-4.jpg"
     ],
     "stock": true,
     "categoria": "herramientas",
