@@ -1,50 +1,81 @@
-// Variables globales
+// 📦 Variables globales del sistema
 let productos = [];
 let carrito = [];
+let categoriaSeleccionada = "todos";
+let textoBusqueda = "";
 
-// Tu número de WhatsApp Business (Usa el código de país de Perú: 51)
-const NUMERO_WHATSAPP = "51935530397"; // ⚠️ REEMPLAZA ESTO CON TU NÚMERO REAL LUEGO
+// ⚠️ REEMPLAZA ESTO CON TU NÚMERO REAL (Mantén el 51 de Perú adelante, sin espacios ni símbolos)
+const NUMERO_WHATSAPP = "51999999999"; 
 
-// Ejecutar cuando cargue la página
+// 🔥 Ejecutar automáticamente cuando cargue la página web
 document.addEventListener("DOMContentLoaded", () => {
     cargarProductos();
     
-    // Configurar el botón de enviar pedido
+    // Escuchar en tiempo real lo que el cliente escribe en la barra de búsqueda
+    const inputBusqueda = document.getElementById("input-busqueda");
+    if (inputBusqueda) {
+        inputBusqueda.addEventListener("input", (e) => {
+            textoBusqueda = e.target.value.toLowerCase();
+            dibujarProductos(); // Volver a pintar los productos filtrados instantáneamente
+        });
+    }
+
+    // Configurar la acción del botón final del carrito
     document.getElementById("btn-enviar-whatsapp").addEventListener("click", enviarPedidoWhatsApp);
 });
 
-// Función para jalar los productos del JSON
+// 🌐 Jalar los datos del archivo productos.json
 async function cargarProductos() {
     try {
         const respuesta = await fetch("productos.json");
         productos = await respuesta.json();
         dibujarProductos();
     } catch (error) {
-        console.error("Error cargando el catálogo:", error);
+        console.error("Error crítico cargando el catálogo de productos:", error);
     }
 }
 
-// Función para pintar las tarjetas de los productos en el HTML
+// 🎨 Pintar las tarjetas de los productos aplicando los filtros activos
 function dibujarProductos() {
     const contenedor = document.getElementById("contenedor-productos");
+    if (!contenedor) return;
     contenedor.innerHTML = "";
 
-    productos.forEach(prod => {
+    // 🌟 FILTRADO INTELIGENTE: Combinamos búsqueda por texto y categoría seleccionada
+    const productosFiltrados = productos.filter(prod => {
+        const coincideCategoria = (categoriaSeleccionada === "todos" || prod.categoria === categoriaSeleccionada);
+        const coincideTexto = prod.nombre.toLowerCase().includes(textoBusqueda) || 
+                              prod.descripcion.toLowerCase().includes(textoBusqueda);
+        return coincideCategoria && coincideTexto;
+    });
+
+    // Si no hay ninguna coincidencia, mostrar un aviso amigable
+    if (productosFiltrados.length === 0) {
+        contenedor.innerHTML = `
+            <div class="col-12 text-center my-5">
+                <p class="text-muted fs-5">No encontramos productos o servicios que coincidan con tu búsqueda 🔍</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Dibujar en pantalla únicamente los productos que pasaron el filtro
+    productosFiltrados.forEach(prod => {
         const tarjeta = document.createElement("div");
         tarjeta.className = "col";
         
-        // Validar si hay stock disponible
+        // Deshabilitar botón si el producto no cuenta con stock disponible
         const botonHTML = prod.stock 
-            ? `<button class="btn btn-dark w-100 fw-bold" onclick="agregarAlCarrito(${prod.id})">🛒 Agregar al Pedido</button>`
-            : `<button class="btn btn-secondary w-100" disabled>Agotado momentáneamente</button>`;
+            ? `<button class="btn btn-dark w-100 fw-bold shadow-sm" onclick="agregarAlCarrito(${prod.id})">🛒 Agregar al Pedido</button>`
+            : `<button class="btn btn-secondary w-100 text-white" disabled>Agotado momentáneamente</button>`;
 
         tarjeta.innerHTML = `
-            <div class="card h-100 shadow-sm border-0 bg-white">
+            <div class="card h-100 shadow-sm border-0 bg-white card-producto">
                 <img src="${prod.imagen}" class="card-img-top p-2 rounded" alt="${prod.nombre}" style="height: 200px; object-fit: cover;">
                 <div class="card-body d-flex flex-column justify-content-between">
                     <div>
-                        <h5 class="card-title text-dark fw-bold">${prod.nombre}</h5>
-                        <p class="card-text text-muted small">${prod.descripcion}</p>
+                        <h5 class="card-title text-dark fw-bold mb-1">${prod.nombre}</h5>
+                        <p class="card-text text-muted small mb-0">${prod.descripcion}</p>
                     </div>
                     <div class="mt-3">
                         <div class="fs-4 fw-bold text-success mb-2">S/ ${prod.precio.toFixed(2)}</div>
@@ -57,12 +88,32 @@ function dibujarProductos() {
     });
 }
 
-// Función para añadir productos al array del carrito
+// 🔄 Cambiar de categoría activa y actualizar el diseño de los botones visualmente
+function filtrarPorCategoria(categoria) {
+    categoriaSeleccionada = categoria;
+    
+    // Limpiar clases activas de todos los botones de filtro
+    const botones = document.querySelectorAll(".btn-filtro");
+    botones.forEach(btn => {
+        btn.classList.remove("btn-dark", "active");
+        btn.classList.add("btn-outline-dark");
+    });
+
+    // Resaltar visualmente el botón al que se le hizo clic
+    const botonActivo = window.event.target;
+    if (botonActivo && botonActivo.classList.contains("btn-filtro")) {
+        botonActivo.classList.remove("btn-outline-dark");
+        botonActivo.classList.add("btn-dark", "active");
+    }
+
+    dibujarProductos(); // Refrescar catálogo con la nueva categoría
+}
+
+// 🛒 Añadir un producto al array del carrito de compras
 function agregarAlCarrito(id) {
     const producto = productos.find(p => p.id === id);
-    
-    // Si ya existe en el carrito, aumentamos su cantidad
     const itemEnCarrito = carrito.find(item => item.id === id);
+    
     if (itemEnCarrito) {
         itemEnCarrito.cantidad++;
     } else {
@@ -72,23 +123,22 @@ function agregarAlCarrito(id) {
     actualizarInterfazCarrito();
 }
 
-// Función para actualizar los contadores y la ventana del carrito
+// 🔄 Renderizar las filas de productos dentro de la ventana modal del carrito
 function actualizarInterfazCarrito() {
     const contador = document.getElementById("contador-carrito");
     const listaItems = document.getElementById("items-carrito");
     const totalSpan = document.getElementById("total-carrito");
 
-    // Calcular el total de productos añadidos
     const totalArticulos = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-    contador.innerText = totalArticulos;
+    if (contador) contador.innerText = totalArticulos;
 
     if (carrito.length === 0) {
-        listaItems.innerHTML = `<p class="text-muted text-center my-3">El carrito está vacío.</p>`;
-        totalSpan.innerText = "0.00";
+        if (listaItems) listaItems.innerHTML = `<p class="text-muted text-center my-3">El carrito está vacío.</p>`;
+        if (totalSpan) totalSpan.innerText = "0.00";
         return;
     }
 
-    listaItems.innerHTML = "";
+    if (listaItems) listaItems.innerHTML = "";
     let totalPrecio = 0;
 
     carrito.forEach(item => {
@@ -96,27 +146,29 @@ function actualizarInterfazCarrito() {
         totalPrecio += subtotal;
 
         const fila = document.createElement("div");
-        fila.className = "d-flex justify-content-between align-items-center mb-2 bg-light p-2 rounded";
+        fila.className = "d-flex justify-content-between align-items-center mb-2 bg-light p-2 rounded animate__animated animate__fadeInFast";
         fila.innerHTML = `
             <div>
-                <span class="fw-bold text-dark">${item.nombre}</span>
+                <span class="fw-bold text-dark text-truncate d-inline-block" style="max-width: 220px;">${item.nombre}</span>
                 <br>
                 <small class="text-muted">S/ ${item.precio.toFixed(2)} x ${item.cantidad}</small>
             </div>
             <div class="d-flex align-items-center">
                 <span class="fw-bold text-success me-3">S/ ${subtotal.toFixed(2)}</span>
-                <button class="btn btn-sm btn-outline-danger" onclick="eliminarDelCarrito(${item.id})">❌</button>
+                <button class="btn btn-sm btn-outline-danger border-0" onclick="eliminarDelCarrito(${item.id})">❌</button>
             </div>
         `;
-        listaItems.appendChild(fila);
+        if (listaItems) listaItems.appendChild(fila);
     });
 
-    totalSpan.innerText = totalPrecio.toFixed(2);
+    if (totalSpan) totalSpan.innerText = totalPrecio.toFixed(2);
 }
 
-// Función para quitar una unidad o eliminar el producto del carrito
+// ❌ Disminuir cantidad o remover un artículo por completo del carrito
 function eliminarDelCarrito(id) {
     const itemEnCarrito = carrito.find(item => item.id === id);
+    if (!itemEnCarrito) return;
+
     if (itemEnCarrito.cantidad > 1) {
         itemEnCarrito.cantidad--;
     } else {
@@ -125,10 +177,10 @@ function eliminarDelCarrito(id) {
     actualizarInterfazCarrito();
 }
 
-// Función para empaquetar el string del mensaje y redirigir a la API de WhatsApp
+// 💬 Empaquetar el array de compras en un mensaje cifrado de URL y enviarlo a WhatsApp
 function enviarPedidoWhatsApp() {
     if (carrito.length === 0) {
-        alert("¡Tu carrito está vacío! Añade productos antes de confirmar.");
+        alert("¡Tu carrito está vacío! Añade productos antes de confirmar tu pedido.");
         return;
     }
 
@@ -143,21 +195,21 @@ function enviarPedidoWhatsApp() {
 
     textoMensaje += `\n💰 *Total Estimado a Pagar:* S/ ${totalPrecio.toFixed(2)}`;
     
-    // Aplicar regla comercial dinámica: Envío gratis si supera los S/ 100
+    // Regla de envío gratis dinamizada según montos
     if (totalPrecio >= 100) {
-        textoMensaje += `\n🚚 _¡Felicidades! Aplica para Envío Gratis a tu distrito_`;
+        textoMensaje += `\n🚚 _¡Felicidades! Tu compra califica para Envío Gratis_`;
     } else {
-        textoMensaje += `\n📦 _Nota: No incluye costo de entrega (Menor a S/ 100)_`;
+        textoMensaje += `\n📦 _Nota: No incluye costo de entrega (Pedidos menores a S/ 100)_`;
     }
 
     textoMensaje += "\n\n📌 *Mis Datos de Contacto:*";
     textoMensaje += "\n• Nombre: ";
     textoMensaje += "\n• Distrito de Entrega: ";
 
-    // Codificar el texto para que sea compatible con una URL de internet
+    // Codificar caracteres especiales para compatibilidad URL universal
     const mensajeCodificado = encodeURIComponent(textoMensaje);
     const urlWhatsApp = `https://wa.me/${NUMERO_WHATSAPP}?text=${mensajeCodificado}`;
 
-    // Abrir el chat de WhatsApp en una pestaña nueva
+    // Despachar hacia la aplicación o web de WhatsApp en pestaña nueva
     window.open(urlWhatsApp, "_blank");
 }

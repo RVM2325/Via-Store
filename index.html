@@ -28,6 +28,23 @@
             <span class="badge bg-danger p-2 fs-6">🚚 Envío GRATIS a partir de S/ 100</span>
         </div>
 
+        <!-- Barra de Búsqueda y Filtros -->
+<div class="container mb-4">
+    <div class="row g-3">
+        <!-- Barra de búsqueda por texto -->
+        <div class="col-12 col-md-6">
+            <input type="text" id="input-busqueda" class="form-control form-control-lg shadow-sm" placeholder="🔍 Buscar herramientas, mouses, servicios...">
+        </div>
+        <!-- Filtros por Categoría -->
+        <div class="col-12 col-md-6 d-flex gap-2 flex-wrap align-items-center justify-content-md-end">
+            <button class="btn btn-dark shadow-sm btn-filtro active" onclick="filtrarPorCategoria('todos')">Todos</button>
+            <button class="btn btn-outline-dark shadow-sm btn-filtro" onclick="filtrarPorCategoria('herramientas')">Herramientas</button>
+            <button class="btn btn-outline-dark shadow-sm btn-filtro" onclick="filtrarPorCategoria('tecnologia')">Tecnología</button>
+            <button class="btn btn-outline-dark shadow-sm btn-filtro" onclick="filtrarPorCategoria('servicio')">Servicios técnicos</button>
+        </div>
+    </div>
+</div>
+
         <!-- Contenedor donde JavaScript meterá los productos -->
         <div class="row row-cols-1 row-cols-md-3 g-4 mt-2" id="contenedor-productos"></div>
     </div>
