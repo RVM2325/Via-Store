@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vía Store & Service</title>
+    <!-- Bootstrap CSS para diseño rápido en celulares -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navegación -->
+    <nav class="navbar navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">VÍA STORE & SERVICE 🛒🔧</a>
+            <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalCarrito">
+                🛒 Mi Carrito (<span id="contador-carrito">0</span>)
+            </button>
+        </div>
+    </nav>
+
+    <!-- Banner Principal -->
+    <div class="container my-4">
+        <div class="bg-white p-4 rounded shadow-sm text-center">
+            <h1 class="display-6 fw-bold text-dark">Catálogo Digital</h1>
+            <p class="text-muted">Importaciones, novedades y Servicio Técnico Especializado en Lince.</p>
+            <span class="badge bg-danger p-2 fs-6">🚚 Envío GRATIS a partir de S/ 100</span>
+        </div>
+
+        <!-- Contenedor donde JavaScript meterá los productos -->
+        <div class="row row-cols-1 row-cols-md-3 g-4 mt-2" id="contenedor-productos"></div>
+    </div>
+
+    <!-- Modal del Carrito (Ventana flotante) -->
+    <div class="modal fade" id="modalCarrito" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">Tu Pedido</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="items-carrito">
+                        <!-- Aquí se listarán los productos agregados -->
+                        <p class="text-muted text-center">El carrito está vacío.</p>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+                        <span>Total:</span>
+                        <span>S/ <span id="total-carrito">0.00</span></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal">Seguir comprando</button>
+                    <button type="button" class="btn btn-success w-100 mt-2" id="btn-enviar-whatsapp">Confirmar por WhatsApp 💬</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Tu archivo lógico -->
+    <script src="script.js"></script>
+</body>
+</html>
