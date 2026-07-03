@@ -148,11 +148,11 @@ function actualizarInterfazCarrito() {
     if (carrito.length === 0) {
         if (listaItems) listaItems.innerHTML = `<p class="text-muted text-center my-3">El carrito está vacío.</p>`;
         if (totalSpan) totalSpan.innerText = "0.00";
-        if (seccionEntrega) seccionEntrega.classList.add("d-none"); // Ocultar si no hay productos
+        if (seccionEntrega) seccionEntrega.classList.add("d-none");
         return;
     }
 
-    if (seccionEntrega) seccionEntrega.classList.remove("d-none"); // Mostrar selector si hay items
+    if (seccionEntrega) seccionEntrega.classList.remove("d-none");
     if (listaItems) listaItems.innerHTML = "";
     let totalPrecio = 0;
 
@@ -183,14 +183,14 @@ function actualizarInterfazCarrito() {
     if (totalSpan) totalSpan.innerText = totalPrecio.toFixed(2);
 }
 
-// 💬 Enviar el pedido estructurado a WhatsApp incluyendo el método de entrega seleccionado
+// 💬 Enviar el pedido estructurado a WhatsApp incluyendo tus opciones reales de entrega
 function enviarPedidoWhatsApp() {
     if (carrito.length === 0) {
         alert("¡Tu carrito está vacío! Añade productos antes de confirmar tu pedido.");
         return;
     }
 
-    // 📍 CAPTURAR LA OPCIÓN DEL SELECTOR DE ENTREGA
+    // Capturar la opción real elegida por el cliente en el selector
     const selectEntrega = document.getElementById("select-entrega");
     const metodoEntrega = selectEntrega ? selectEntrega.value : "No especificado";
 
@@ -203,22 +203,26 @@ function enviarPedidoWhatsApp() {
         textoMensaje += `• *${item.cantidad}x* ${item.nombre} (S/ ${item.precio.toFixed(2)} c/u) → *S/ ${subtotal.toFixed(2)}*\n`;
     });
 
-    textoMensaje += `\n💰 *Total Estimado a Pagar:* S/ ${totalPrecio.toFixed(2)}`;
+    textoMensaje += `\n💰 *Total de Productos:* S/ ${totalPrecio.toFixed(2)}`;
     
-    // Regla de envío gratis dinamizada
-    if (totalPrecio >= 100) {
-        textoMensaje += `\n🚚 _¡Felicidades! Tu compra califica para Envío Gratis_`;
-    } else {
-        textoMensaje += `\n📦 _Nota: No incluye costo de entrega (Pedidos menores a S/ 100)_`;
+    // Agregar la modalidad de entrega seleccionada al mensaje de WhatsApp
+    textoMensaje += `\n\n📍 *Modalidad de Entrega Seleccionada:* \n→ _${metodoEntrega}_`;
+
+    // Notas automáticas según la opción elegida para transparentar costos
+    if (metodoEntrega.includes("Agencia")) {
+        textoMensaje += `\n✨ _Nota: El envío a agencia ya está incluido gratis en el precio._`;
+    } else if (metodoEntrega.includes("Domicilio Directo")) {
+        textoMensaje += `\n⏳ _Nota: Coordinaremos el costo extra según la tarifa del app de delivery._`;
+    } else if (metodoEntrega.includes("Punto de Encuentro")) {
+        textoMensaje += `\n⏳ _Nota: Coordinaremos el punto exacto y el recargo por movilidad._`;
     }
 
-    // 📍 AGREGAR EL MÉTODO DE ENTREGA AL MENSAJE FINAL
-    textoMensaje += `\n\n📍 *Método de Entrega Solicitado:* \n→ _${metodoEntrega}_`;
+    textoMensaje += "\n\n📌 *Mis Datos para la Coordinación:*";
+    textoMensaje += "\n• Nombre Completo: ";
+    textoMensaje += "\n• Celular de Contacto: ";
+    textoMensaje += "\n• Agencia de preferencia / Dirección / Punto deseado: ";
 
-    textoMensaje += "\n\n📌 *Mis Datos de Contacto:*";
-    textoMensaje += "\n• Nombre: ";
-    textoMensaje += "\n• Dirección / Ref. Exacta: ";
-
+    // Cifrar mensaje para la URL
     const mensajeCodificado = encodeURIComponent(textoMensaje);
     const urlWhatsApp = `https://wa.me/${NUMERO_WHATSAPP}?text=${mensajeCodificado}`;
 
