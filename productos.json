@@ -2,7 +2,7 @@
   {
     "id": 1,
     "nombre": "Maletín de Herramientas Premium",
-    "precio": 169.90,
+    "precio": 160,
     "imagenes": [
       "img/taladro-108-1.jpg",
       "img/taladro-108-2.jpg",
@@ -15,11 +15,16 @@
   },
   {
     "id": 2,
-    "nombre": "Mouse Gamer RGB",
-    "precio": 39.90,
+    "nombre": "Mouse Monster Gamer Led",
+    "precio": 10,
     "imagenes": [
-      "img/mouse-1.jpg",
-      "img/mouse-2.jpg"
+      "img/mouse-rgb-1.jpg",
+      "img/mouse-rgb-2.jpg",
+      "img/mouse-rgb-3.jpg",
+      "img/mouse-rgb-4.jpg",
+      "img/mouse-rgb-5.jpg",
+      "img/mouse-rgb-6.jpg",
+      "img/mouse-rgb-7.jpg"
     ],
     "stock": true,
     "categoria": "tecnologia",
