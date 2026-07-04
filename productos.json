@@ -15,7 +15,7 @@
   },
   {
     "id": 2,
-    "nombre": "Mouse Monster Gamer Led",
+    "nombre": "Mouse Monster Gamer",
     "precio": 10,
     "imagenes": [
       "img/mouse-rgb-1.jpg",
@@ -28,6 +28,6 @@
     ],
     "stock": true,
     "categoria": "tecnologia",
-    "descripcion": "Mouse ergonómico con sensor óptico regulable."
+    "descripcion": "Mouse Monster Gamer con Luces LED."
   }
 ]
